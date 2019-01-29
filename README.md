@@ -1,6 +1,7 @@
 Authors Haven - A Social platform for the creative at heart.
-=======
-[![Build Status](https://travis-ci.com/andela/ah-bird-box.svg?branch=develop)](https://travis-ci.com/andela/ah-bird-box)
+
+[![Build Status](https://travis-ci.com/andela/ah-bird-box.svg?branch=develop)](https://travis-ci.com/andela/ah-bird-box) [![Coverage Status](https://coveralls.io/repos/github/andela/ah-bird-box/badge.svg?branch=develop)](https://coveralls.io/github/andela/ah-bird-box?branch=develop)
+
 ## Vision
 Create a community of like minded authors to foster inspiration and innovation
 by leveraging the modern web.
