@@ -17,3 +17,7 @@ before_script:
 script: 
  - coverage run --source=authors/apps manage.py test
  - python -m coverage report -m
+
+# Post coverage results to coverage.io
+after_success:
+  - coveralls
