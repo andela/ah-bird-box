@@ -94,3 +94,6 @@ db.sqlite3
 
 .vscode/
 .DS_Store
+
+# Static files
+staticfiles/
