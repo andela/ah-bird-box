@@ -4,6 +4,8 @@ from rest_framework import serializers
 
 from .models import User
 
+import re
+
 
 class RegistrationSerializer(serializers.ModelSerializer):
     """Serializers registration requests and creates a new user."""
@@ -15,6 +17,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
         min_length=8,
         write_only=True
     )
+
+    def validate_username(self, data):
+        if re.match(r'^[0-9]+[A-Za-z0-9]*$', data):
+            raise serializers.ValidationError(
+                "Username cannot contain numbers or special characters only")
+        return data
+
+    def validate_password(self, data):
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*',
+                        data):
+            raise serializers.ValidationError(
+                "Password must contain a number, capital letter and special charachter") # noqa
+        return data
 
     # The client should not be able to send a token along with a registration
     # request. Making `token` read-only handles that for us.
