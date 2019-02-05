@@ -1,7 +1,5 @@
 from django.contrib.auth import authenticate
-
 from rest_framework import serializers
-
 from .models import User
 
 import re
@@ -18,6 +16,10 @@ class RegistrationSerializer(serializers.ModelSerializer):
         write_only=True
     )
 
+    # The client should not be able to send a token along with a registration
+    # request. Making `token` read-only handles that for us.
+    token = serializers.CharField(max_length=255, read_only=True)
+
     def validate_username(self, data):
         if re.match(r'^[0-9]+[A-Za-z0-9]*$', data):
             raise serializers.ValidationError(
@@ -28,17 +30,14 @@ class RegistrationSerializer(serializers.ModelSerializer):
         if not re.match(r'^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*',
                         data):
             raise serializers.ValidationError(
-                "Password must contain a number, capital letter and special charachter") # noqa
+                "Password must contain a number, capital letter and special charachter")  # noqa
         return data
-
-    # The client should not be able to send a token along with a registration
-    # request. Making `token` read-only handles that for us.
 
     class Meta:
         model = User
         # List all of the fields that could possibly be included in a request
         # or response, including fields specified explicitly above.
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'token']
 
     def create(self, validated_data):
         # Use the `create_user` method we wrote earlier to create a new user.
@@ -49,6 +48,7 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     username = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
+    token = serializers.CharField(max_length=255, read_only=True)
 
     def validate(self, data):
         # The `validate` method is where we make sure that the current
@@ -101,7 +101,7 @@ class LoginSerializer(serializers.Serializer):
         return {
             'email': user.email,
             'username': user.username,
-
+            'token': user.token
         }
 
 
@@ -120,7 +120,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'username', 'password')
+        fields = ['email', 'username', 'password']
 
         # The `read_only_fields` option is an alternative for explicitly
         # specifying the field with `read_only=True` like we did for password

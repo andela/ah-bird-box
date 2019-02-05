@@ -3,7 +3,6 @@ from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .renderers import UserJSONRenderer
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
@@ -64,7 +63,7 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        serializer_data = request.data.get('user', {})
+        serializer_data = request.data
 
         # Here is that serialize, validate, save pattern we talked about
         # before.
