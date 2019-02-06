@@ -8,79 +8,71 @@ class TestConfiguration(APITestCase):
     def setUp(self):
         """Initialize variables and methods used by the tests."""
         self.user = {
-            "user": {
                 "username": "gracie",
                 "email": "graceunah@gmail.com",
                 "password": "Unah12@$!"
-            }
         }
 
         self.client = APIClient()
         self.login_url = reverse('authentication:login_user')
         self.register_url = reverse('authentication:register_user')
 
-        self.empty_payload = {
-            "user": {}
-        }
+        self.empty_payload = {}
 
         self.user_wrong_email_format = {
-            "user": {
                 "username": "sammy",
                 "email": "samsamsam",
                 "password": "sam232#$$"
-            }
         }
 
         self.username = {
-            "user": {
                 "username": "Jacob",
                 "email": "lolisme2016@gmail.com",
                 "password": "manu232#$$"
-            }
         }
 
         self.username1 = {
-            "user": {
                 "username": "Jacob",
                 "email": "jake1@jake.jake",
                 "password": "manu232#$$"
-            }
         }
         self.user_empty_email = {
-            "user": {
                 "username": "Rakel",
                 "email": "",
                 "password": "noni232#$$"
-            }
         }
         self.user_empty_username = {
-            "user": {
                 "username": "",
                 "email": "jake@jake.com",
                 "password": "manu232#$$"
-            }
         }
         self.user_empty_password = {
-            "user": {
                 "username": "jake",
                 "email": "jake@jake.com",
                 "password": ""
-            }
         }
 
         self.user_short_password = {
-            'user': {
                 'username': 'nimo',
                 'email': 'nimo@gmail.com',
                 'password': 'me1'
-            }
         }
 
         self.user_login = {
-            "user": {
                 "email": "graceunah@gmail.com",
                 "password": "Unah12@$!"
-            }
+        }
+
+        self.invalid_username = {
+                'username': '666778',
+                'email': 'gracie@gmail.com',
+                'password': 'me1hn5u*%h5'
+        }
+
+        self.user_non_alphanumeric_password = {
+                'username': 'claudia',
+                'email': 'claudia@gmail.com',
+                'password': 'passnjsnffsfn'
         }
 
     def register_user(self, data):

@@ -15,7 +15,7 @@ class TestLogin(TestConfiguration):
     def test_login_email_does_not_exist(self):
         """ test login with non existing email """
         self.register_user(data=self.user)
-        self.user_login["user"]["email"] = "chixy.com"
+        self.user_login["email"] = "chixy.com"
         response = self.user_login_req(data=self.user_login)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['errors']['error'][0],

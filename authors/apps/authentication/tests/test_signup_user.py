@@ -8,7 +8,6 @@ class TestRegistration(TestConfiguration):
 
     def test_register_user(self):
         """Test to register a user."""
-
         response = self.register_user(data=self.user)
         self.assertEqual(response.data['email'], "graceunah@gmail.com")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -79,4 +78,22 @@ class TestRegistration(TestConfiguration):
         self.assertEqual(
             response_message,
             "Ensure this field has at least 8 characters.")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_valid_username(self):
+        """Test for username not having numbers only"""
+        response = self.register_user(data=self.invalid_username)
+        self.assertEqual(
+            response.data['errors']['username'][0],
+            "Username cannot contain numbers or special characters only")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_password_is_alphanumeric(self):
+        """Test for user with short password"""
+        response = self.register_user(data=self.user_non_alphanumeric_password)
+        response_message = response.data[
+            "errors"]["password"][0]
+        self.assertEqual(
+            response_message,
+            "Password must contain a number, capital letter and special charachter")  # noqa
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
