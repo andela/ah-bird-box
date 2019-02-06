@@ -11,7 +11,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
     # Ensure passwords are at least 8 characters long, no longer than 128
     # characters, and can not be read by the client.
     password = serializers.CharField(
-        max_length=128,
+        max_length=30,
         min_length=8,
         write_only=True
     )
@@ -165,3 +165,21 @@ class SocialAuthSerializer(serializers.Serializer):
         max_length=4096, required=True, trim_whitespace=True)
     access_token_secret = serializers.CharField(
         max_length=4096, required=False, trim_whitespace=True)
+
+
+class PasswordSerializer(RegistrationSerializer, serializers.ModelSerializer):
+    """Handles serialization and deserialization of Password Reset"""
+
+    confirm_password = serializers.CharField(
+        max_length=30,
+        min_length=8,
+        required=False
+    )
+
+
+class PasswordResetSerializer(PasswordSerializer, serializers.ModelSerializer):
+    """Handles serialization and deserialization of Password Reset"""
+
+    class Meta:
+        model = User
+        fields = ['password', 'confirm_password']

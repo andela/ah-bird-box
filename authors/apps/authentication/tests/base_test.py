@@ -1,6 +1,9 @@
 import os
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
+from django.core import mail
+from bs4 import BeautifulSoup
+import re
 
 
 class TestConfiguration(APITestCase):
@@ -59,6 +62,8 @@ class TestConfiguration(APITestCase):
         self.specific_user_url = reverse('authentication:specific_user')
         self.invalid_token = 'thsnmbnscjkxcmm.btydghvhjb'
         self.invalid_token2 = 't'
+        self.password_reset_url = reverse('authentication:reset_password')
+
         self.empty_payload = {}
 
         self.user_wrong_email_format = {
@@ -116,6 +121,14 @@ class TestConfiguration(APITestCase):
             'email': 'claudia@gmail.com',
             'password': 'passnjsnffsfn'
         }
+        self.passwords = {
+            'password': '@Birdbox2019',
+            'confirm_password': '@Birdbox2019'
+        }
+        self.unmatched_passwords = {
+            'password': '@Birdbox2019',
+            'confirm_password': '@Birdbox2018'
+        }
 
     def register_user(self, data):
         return self.client.post(
@@ -144,3 +157,15 @@ class TestConfiguration(APITestCase):
         self.register_user(data=self.user)
         response = self.user_login_req(data=self.user_login)
         return response.data['token']
+
+    def get_token_from_email(self):
+        self.register_user(data=self.user)
+        self.client.post(
+            self.password_reset_url, data={"email": "graceunah@gmail.com"},
+            format='json'
+        )
+        email = mail.outbox[0].alternatives[0][0]
+        soup = BeautifulSoup(email, 'html.parser')
+        link = soup.a['href']
+        token = re.search(r'(?<=update_password/)(.*)', link).group(1)
+        return token
