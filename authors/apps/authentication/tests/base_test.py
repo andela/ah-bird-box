@@ -1,3 +1,4 @@
+import os
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 
@@ -11,6 +12,33 @@ class TestConfiguration(APITestCase):
                 "username": "gracie",
                 "email": "graceunah@gmail.com",
                 "password": "Unah12@$!"
+        }
+
+        self.social_auth_url = reverse('authentication:social_auth')
+        self.invalid_token = 'this.is.an.invalid.token.for.social.login.test.purpose' # noqa
+        self.oauth2_token = os.getenv("OAUTH2_ACCESS_TOKEN")
+
+        self.invalid_provider_data = {
+            "provider": "invalidprovider",
+            "access_token": self.oauth2_token
+        }
+
+        self.invalid_token_data = {
+            "provider": "facebook",
+            "access_token": self.invalid_token
+        }
+
+        self.oauth2_data = {
+            "provider": "facebook",
+            "access_token": self.oauth2_token
+        }
+
+        self.no_token_data = {
+            "provider": "facebook"
+        }
+
+        self.no_provider_data = {
+            "access_token": self.oauth2_token
         }
 
         self.client = APIClient()

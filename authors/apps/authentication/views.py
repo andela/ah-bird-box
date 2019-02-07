@@ -1,13 +1,17 @@
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .renderers import UserJSONRenderer
 from .serializers import (
-    LoginSerializer, RegistrationSerializer, UserSerializer
+    LoginSerializer, RegistrationSerializer, UserSerializer,
+    SocialAuthSerializer
 )
+from social_django.utils import load_strategy, load_backend
+from social_core.backends.oauth import BaseOAuth1, BaseOAuth2
+from social_core.exceptions import MissingBackend
 
 
 class RegistrationAPIView(APIView):
@@ -71,3 +75,62 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class SocialAuthView(CreateAPIView):
+    """Login via social sites (Google, Facebook)"""
+    permission_classes = (AllowAny,)
+    serializer_class = SocialAuthSerializer
+    renderer_classes = (UserJSONRenderer,)
+
+    def create(self, request):
+        """Takes in provider and access_token to authenticate user"""
+        serializer = self.serializer_class(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+        provider = serializer.data.get("provider")
+        authenticated_user = request.user if not request.user.is_anonymous else None # noqa E501
+        strategy = load_strategy(request)
+
+        # Load backend associated with the provider
+        try:
+
+            backend = load_backend(
+                strategy=strategy, name=provider, redirect_uri=None)
+            if isinstance(backend, BaseOAuth1):
+                if "access_token_secret" in request.data:
+                    access_token = {
+                        'oauth_token': request.data['access_token'],
+                        'oauth_token_secret': request.data['access_token_secret'] # noqa E501
+                    }
+                else:
+                    return Response(
+                        {"error": "Access token secret is required"},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            elif isinstance(backend, BaseOAuth2):
+
+                access_token = serializer.data.get("access_token")
+
+        except MissingBackend:
+            return Response({"error": "The Provider is invalid"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Go through the pipeline to create user if they don't exist
+        try:
+            user = backend.do_auth(access_token, user=authenticated_user)
+
+        except BaseException:
+            return Response({"error": "Invalid token"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if user and user.is_active:
+
+            email = user.email
+            username = user.username
+            user_data = {
+                "username": username,
+                "email": email
+            }
+            return Response(user_data, status=status.HTTP_200_OK)
