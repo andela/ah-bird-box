@@ -7,6 +7,54 @@ Create a community of like minded authors to foster inspiration and innovation
 by leveraging the modern web.
 
 ---
+## Application local setup
+
+### Technologies used to build the application
+1. [Django](https://www.djangoproject.com/)
+2. [Django Rest-Framework](https://www.django-rest-framework.org/)
+3. [PostgreSQL](https://medium.com/@Umesh_Kafle/postgresql-and-postgis-installation-in-mac-os-87fa98a6814d)
+4. [Virtualenv](https://virtualenv.pypa.io/en/latest/installation/)
+
+### Getting Started
+1. Open your terminal and clone the repo with `https://github.com/andela/ah-bird-box.git`
+2. Switch directory to the cloned project `cd ah-bird-box`
+3. Create a virtual environment with `virtualenv -p python3 venv` or `python3 -m virtualenv venv`
+4. Activate the virtual environment with `source venv/bin/activate`
+5. Install the requirements packages with `pip3 install -r requirements.txt`
+
+### Setting up the database
+Ensure PostgreSQL is installed
+1. Start the postgres database server using `pg_ctl -D /usr/local/var/postgres start`
+2. Navigate to the psql terminal with `psql postgres`
+3. Create a new user `CREATE USER sample_username WITH PASSWORD 'sample_password';`
+4. Grant privileges to the user `ALTER USER sample_username CREATEDB;`
+5. Create a database for the project `CREATE DATABASE sample_database_name WITH OWNER sample_username;`
+6. Create a .env file under the main directory of the project and add:
+```
+source venv/bin/activate
+export DATABASE_URL="postgresql://localhost:5432/database_name"
+export EMAIL_SENDER="<your_email_address>"
+export EMAIL_HOST="smtp.gmail.com"
+export EMAIL_HOST_USER="<your_email_address>"
+export EMAIL_HOST_PASSWORD="<your_email_password>"
+export EMAIL_PORT=587
+export FACEBOOK_KEY="<facebook_key_value>"
+export FACEBOOK_SECRET="<facebook_secret_value>"
+export GOOGLE_OAUTH2_KEY="<google_key_value>"
+export GOOGLE_OAUTH2_SECRET="<google_secret_key>"
+export OAUTH2_ACCESS_TOKEN="<oath_access_token>"
+```
+7. Do a `source .env` command to set the configuration variables
+8. Make migrations to create tables in the database with `python manage.py makemigrations`
+9. Run `python manage.py migrate`
+10. Collect static files with `python manage.py collectstatic`
+
+### Run the server
+Once everything is set up run the server using `python manage.py runserver`
+The application can be accessed in the url http://localhost:800
+
+### Testing
+To test the application run `tox` in the terminal
 
 ## API Spec
 The preferred JSON object to be returned by the API should be structured as follows:
