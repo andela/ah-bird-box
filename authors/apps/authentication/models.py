@@ -2,6 +2,9 @@ from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
 from django.db import models
+from django.conf import settings
+from datetime import datetime as date_time, timedelta
+import jwt
 
 
 class UserManager(BaseUserManager):
@@ -98,6 +101,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     @property
+    def token(self):
+        """
+        This method allows us to get the token by calling 'user.token'
+        """
+        return self.generate_jwt_token()
+
     def get_full_name(self):
         """
         This method is required by Django for things like handling emails.
@@ -113,3 +122,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         the user's real name, we return their username instead.
         """
         return self.username
+
+    def generate_jwt_token(self):
+        """This method generates a JSON Web Token during user signup"""
+        user_details = {'email': self.email,
+                        'username': self.username}
+        token = jwt.encode(
+            {
+                'user_data': user_details,
+                'exp': date_time.now() + timedelta(days=7)
+            }, settings.SECRET_KEY, algorithm='HS256'
+        )
+        return token.decode('utf-8')
