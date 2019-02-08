@@ -130,6 +130,19 @@ class TestConfiguration(APITestCase):
             'confirm_password': '@Birdbox2018'
         }
 
+        self.resend_url = {
+            'email': 'graceunah@gmail.com'
+
+        }
+
+        self.resend_blank_email = {
+            'email': ''
+        }
+
+        self.resend_wrong_email_format = {
+            'email': 'memeemnjd.com'
+        }
+
     def register_user(self, data):
         return self.client.post(
             self.register_url,
@@ -160,6 +173,7 @@ class TestConfiguration(APITestCase):
 
     def get_token_from_email(self):
         self.register_user(data=self.user)
+        mail.outbox = []
         self.client.post(
             self.password_reset_url, data={"email": "graceunah@gmail.com"},
             format='json'

@@ -10,8 +10,8 @@ class JwtTestCase(TestConfiguration):
         """Test token generation at signup."""
 
         response = self.register_user(data=self.user2)
-        self.assertEqual(response.data['email'], "johndoe@test.com")
-        self.assertIn('token', response.data)
+        self.assertEqual(response.data['user_info']['email'], "johndoe@test.com")  # noqa
+        self.assertIn('token', response.data['user_info'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_token_generation_with_user_login(self):

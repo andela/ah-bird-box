@@ -70,6 +70,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     # but we can still analyze the data.
     is_active = models.BooleanField(default=True)
 
+    # When a suer is created this fiels is false until the user verifies their
+    # email
+    is_verified = models.BooleanField(default=False)
+
     # The `is_staff` flag is expected by Django to determine who can and cannot
     # log into the Django admin site. For most users, this flag will always be
     # falsed.

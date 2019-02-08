@@ -1,10 +1,13 @@
+import jwt
+
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .renderers import UserJSONRenderer
 from .models import User
-from .helper_functions.send_email import send_email
+from .helper_functions.send_email import (
+    send_reset_password_email, send_verify_email)
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
     SocialAuthSerializer, PasswordResetSerializer
@@ -15,6 +18,8 @@ from social_core.exceptions import MissingBackend
 from rest_framework.generics import (RetrieveUpdateAPIView, CreateAPIView,
                                      UpdateAPIView)
 from .backends import JWTAuthentication
+
+from authors.settings import SECRET_KEY
 
 
 class RegistrationAPIView(APIView):
@@ -32,7 +37,37 @@ class RegistrationAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        email = serializer.data['email']
+        username = serializer.data['username']
+        token = serializer.data['token']
+
+        details = {
+            'email': email,
+            'username': username
+        }
+        send_verify_email(request, details, token)
+
+        response_message = {
+            "message": "User registered successfully."
+            " Check your email to activate your account.",
+            "user_info": serializer.data
+        }
+
+        return Response(response_message, status=status.HTTP_201_CREATED)
+
+
+class VerifyAPIView(CreateAPIView):
+    serializer_class = UserSerializer
+
+    def get(self, request, token):
+        email = jwt.decode(token, SECRET_KEY)['user_data']['email']
+        user = User.objects.get(email=email)
+        if user.is_verified:
+            return Response({"message": "Email already verified"})
+        user.is_verified = True
+        user.save()
+
+        return Response({"message": "Email verified successfully"})
 
 
 class LoginAPIView(CreateAPIView):
@@ -92,7 +127,7 @@ class SocialAuthView(CreateAPIView):
 
         serializer.is_valid(raise_exception=True)
         provider = serializer.data.get("provider")
-        authenticated_user = request.user if not request.user.is_anonymous else None # noqa E501
+        authenticated_user = request.user if not request.user.is_anonymous else None  # noqa E501
         strategy = load_strategy(request)
 
         # Load backend associated with the provider
@@ -104,7 +139,7 @@ class SocialAuthView(CreateAPIView):
                 if "access_token_secret" in request.data:
                     access_token = {
                         'oauth_token': request.data['access_token'],
-                        'oauth_token_secret': request.data['access_token_secret'] # noqa E501
+                        'oauth_token_secret': request.data['access_token_secret']  # noqa E501
                     }
                 else:
                     return Response(
@@ -157,7 +192,7 @@ class PasswordResetAPIView(CreateAPIView):
         if user:
             user = User.objects.get(email=recipient)
             token = user.token
-            result = send_email(recipient, token, request)
+            result = send_reset_password_email(recipient, token, request)
             return Response(result, status=status.HTTP_200_OK)
         else:  # if user does not exist
             result = {
