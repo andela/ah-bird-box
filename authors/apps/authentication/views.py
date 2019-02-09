@@ -1,16 +1,20 @@
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .renderers import UserJSONRenderer
+from .models import User
+from .helper_functions.send_email import send_email
 from .serializers import (
     LoginSerializer, RegistrationSerializer, UserSerializer,
-    SocialAuthSerializer
+    SocialAuthSerializer, PasswordResetSerializer
 )
 from social_django.utils import load_strategy, load_backend
 from social_core.backends.oauth import BaseOAuth1, BaseOAuth2
 from social_core.exceptions import MissingBackend
+from rest_framework.generics import (RetrieveUpdateAPIView, CreateAPIView,
+                                     UpdateAPIView)
+from .backends import JWTAuthentication
 
 
 class RegistrationAPIView(APIView):
@@ -31,7 +35,7 @@ class RegistrationAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class LoginAPIView(APIView):
+class LoginAPIView(CreateAPIView):
     permission_classes = (AllowAny,)
     renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
@@ -135,3 +139,56 @@ class SocialAuthView(CreateAPIView):
                 "token": token
             }
             return Response(user_data, status=status.HTTP_200_OK)
+
+
+class PasswordResetAPIView(CreateAPIView):
+    permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
+    serializer_class = PasswordResetSerializer
+
+    def post(self, request):
+        recipient = request.data.get('email', {})  # user enters email
+        if not recipient:
+            return Response({"message": "Please provide an email address"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # confirm if user exists and generate a token for email entered
+        user = User.objects.filter(email=recipient).exists()
+        if user:
+            user = User.objects.get(email=recipient)
+            token = user.token
+            result = send_email(recipient, token, request)
+            return Response(result, status=status.HTTP_200_OK)
+        else:  # if user does not exist
+            result = {
+                'message': 'Sorry, user with this email does not exist'
+            }
+            return Response(result, status=status.HTTP_404_NOT_FOUND)
+
+
+class PasswordUpdateAPIView(UpdateAPIView):
+    permission_classes = (AllowAny,)
+    serializer_class = PasswordResetSerializer
+
+    def update(self, request, *args, **kwargs):
+        token = self.kwargs.get('token')
+        password = request.data.get('password')
+        confirm_password = request.data.get('confirm_password')
+        if password != confirm_password:
+            return Response({"message": "Sorry, your passwords do not match"},
+                            status=status.HTTP_400_BAD_REQUEST)
+        password = {
+            "password": password
+        }
+        serializer = self.serializer_class(data=password)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            user_email, token = JWTAuthentication.authenticate_token(self, request, token) # noqa 
+            user = User.objects.get(email=user_email)
+            user.set_password(request.data.get('password'))
+            user.save()
+            result = {'message': 'Your password has been reset successfully'}
+            return Response(result, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'message': e}, status=status.HTTP_400_BAD_REQUEST)
