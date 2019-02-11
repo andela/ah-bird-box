@@ -3,7 +3,8 @@ from django.urls import path
 from .views import (
     LoginAPIView, RegistrationAPIView, UserRetrieveUpdateAPIView,
     SocialAuthView,
-    PasswordResetAPIView, PasswordUpdateAPIView
+    PasswordResetAPIView, PasswordUpdateAPIView,
+    VerifyAPIView
 )
 
 app_name = 'authentication'
@@ -17,4 +18,5 @@ urlpatterns = [
          name="reset_password"),
     path('users/update_password/<token>', PasswordUpdateAPIView.as_view(),
          name='update_password'),
+    path('users/verify/<token>', VerifyAPIView.as_view(), name="verify_email")
 ]

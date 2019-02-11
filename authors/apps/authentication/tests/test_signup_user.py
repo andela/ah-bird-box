@@ -9,7 +9,7 @@ class TestRegistration(TestConfiguration):
     def test_register_user(self):
         """Test to register a user."""
         response = self.register_user(data=self.user)
-        self.assertEqual(response.data['email'], "graceunah@gmail.com")
+        self.assertEqual(response.data['user_info']['email'], "graceunah@gmail.com")  # noqa
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_register_user_wrong_email_format(self):
