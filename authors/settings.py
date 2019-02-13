@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'authors.apps.profiles',
 
     'social_django',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -203,3 +204,10 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = True
+
+CLOUDINARY = {
+ 'cloud_name': config('CLOUDINARY_NAME'),
+ 'api_key': config('CLOUDINARY_KEY'),
+ 'api_secret': config('CLOUDINARY_SECRET'),
+ 'secure': True
+}
