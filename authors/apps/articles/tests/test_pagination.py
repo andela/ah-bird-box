@@ -3,6 +3,7 @@ from .base_test import TestBaseCase
 
 class PaginationTestCase(TestBaseCase):
     def create_multiple_articles(self):
+        self.authenticate_user(self.test_user)
         for i in range(21):
             self.create_article()
 

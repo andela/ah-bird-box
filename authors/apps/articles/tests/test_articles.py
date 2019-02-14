@@ -1,18 +1,12 @@
-from .base_test import TestBaseCase
-
+from rest_framework.test import APIClient
 from rest_framework import status
+
+from .base_test import TestBaseCase
 
 
 class TestArticle(TestBaseCase):
     def base_articles(self, message, response):
         self.assertIn(message.encode(), response.content)
-
-    def authorized_post_request(self, url):
-        token = self.login_user()
-        response = self.client.post(
-            url, self.article, format='json',
-            HTTP_AUTHORIZATION='Bearer ' + token)
-        return response
 
     def http_200_ok(self, response):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -27,7 +21,8 @@ class TestArticle(TestBaseCase):
         """
         This method checks if an uthorized user can create an article
         """
-        response = self.authorized_post_request(self.create_list_article_url)
+        self.authenticate_user(self.test_user)
+        response = self.create_article()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         message = "Test description for the article"
         self.base_articles(message, response)
@@ -37,8 +32,9 @@ class TestArticle(TestBaseCase):
         This method checks if an article with a duplicate
         title can be created
         """
-        self.authorized_post_request(self.create_list_article_url)
-        response = self.authorized_post_request(self.create_list_article_url)
+        self.authenticate_user(self.test_user)
+        self.create_article()
+        response = self.create_article()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         message = "Test description for the article"
         self.base_articles(message, response)
@@ -47,8 +43,7 @@ class TestArticle(TestBaseCase):
         """
         This method ensures that an unauthorized user cannot create an article
         """
-        response = self.client.post(self.create_list_article_url,
-                                    self.article, format='json')
+        response = self.create_article()
         self.http_403_forbidden(response)
         message = "Authentication credentials were not provided."
         self.base_articles(message, response)
@@ -57,20 +52,10 @@ class TestArticle(TestBaseCase):
         """
         This method tests if users can retrieve articles
         """
+        self.authenticate_user(self.test_user)
         self.create_article()
         response = self.client.get(self.create_list_article_url,
                                    format='json')
-        self.http_200_ok(response)
-        message = "Test description for the article"
-        self.base_articles(message, response)
-
-    def test_authorized_user_view_articles(self):
-        """
-        This method tests if authenticated users can view articles
-        """
-        response = self.client.get(
-            self.single_article_url(self.create_article()), format='json',
-            HTTP_AUTHORIZATION='Bearer ' + self.login_user())
         self.http_200_ok(response)
         message = "Test description for the article"
         self.base_articles(message, response)
@@ -79,8 +64,9 @@ class TestArticle(TestBaseCase):
         """
         This method tests if a user can post without a title
         """
+        self.authenticate_user(self.test_user)
         self.article.pop('title')
-        response = self.authorized_post_request(self.create_list_article_url)
+        response = self.create_article()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         message = "Title is required"
         self.base_articles(message, response)
@@ -89,12 +75,11 @@ class TestArticle(TestBaseCase):
         """
         This method checks if a user can update an existing articles
         """
-        response = self.authorized_post_request(self.create_list_article_url)
+        self.authenticate_user(self.test_user)
+        response = self.create_article()
         slug = response.data['slug']
-        token = self.login_user()
         res = self.client.put(self.single_article_url(slug),
-                              self.updated_article, format='json',
-                              HTTP_AUTHORIZATION="Bearer "+token)
+                              self.updated_article, format='json')
         self.assertIn(b"Updated Title", res.content)
         self.http_200_ok(res)
         message = "Test description for the article"
@@ -104,10 +89,12 @@ class TestArticle(TestBaseCase):
         """
         This method tests if unauthorized user can update existing articles
         """
-        slug = self.create_article()
-        response = self.client.put(self.single_article_url(slug),
-                                   self.updated_article,
-                                   format='json')
+        self.authenticate_user(self.test_user)
+        response = self.create_article()
+        self.client = APIClient()
+        response = self.client.put(
+            self.single_article_url(response.data['slug']),
+            self.updated_article, format='json')
         self.http_403_forbidden(response)
         message = "Authentication credentials were not provided."
         self.base_articles(message, response)
@@ -116,12 +103,11 @@ class TestArticle(TestBaseCase):
         """
         This method tests if a user can delete articles
         """
-        response = self.authorized_post_request(self.create_list_article_url)
+        self.authenticate_user(self.test_user)
+        response = self.create_article()
         slug = response.data['slug']
         response = self.client.delete(
-            self.single_article_url(slug), format='json',
-            HTTP_AUTHORIZATION='Bearer ' +
-            self.login_user())
+            self.single_article_url(slug), format='json')
         message = "Article Deleted Successfully"
         self.base_articles(message, response)
         self.http_200_ok(response)
@@ -131,7 +117,10 @@ class TestArticle(TestBaseCase):
         This method tests if a user can delete other
         users articles
         """
-        slug = self.create_article()
+        self.authenticate_user(self.test_user)
+        response = self.create_article()
+        slug = response.data['slug']
+        self.client = APIClient()
         response = self.client.delete(self.single_article_url(slug),
                                       format='json')
         self.http_403_forbidden(response)
@@ -142,10 +131,10 @@ class TestArticle(TestBaseCase):
         """
         This method tests a fetch on a non-existant article
         """
+        self.authenticate_user(self.test_user)
         response = self.client.get(
             self.single_article_url("slug-never-to-be-created-56cjgcaG"),
-            format='json',
-            HTTP_AUTHORIZATION='Bearer ' + self.login_user())
+            format='json')
         self.http_400_bad_request(response)
         message = "No article found for the slug given"
         self.base_articles(message, response)
@@ -154,12 +143,10 @@ class TestArticle(TestBaseCase):
         """
         This method checks if a user can update an existing articles
         """
-        response = self.authorized_post_request(self.create_list_article_url)
-        token = self.login_user()
+        self.authenticate_user(self.test_user)
+        response = self.create_article()
         response = self.client.put(self.single_article_url("missing-article"),
-                                   self.updated_article,
-                                   format='json',
-                                   HTTP_AUTHORIZATION="Bearer "+token)
+                                   self.updated_article)
         self.http_400_bad_request(response)
         message = "No article found for the slug given"
         self.base_articles(message, response)
@@ -169,11 +156,10 @@ class TestArticle(TestBaseCase):
         This method tests if a user can delete a non-existent
         article
         """
-        response = self.authorized_post_request(self.create_list_article_url)
+        self.authenticate_user(self.test_user)
+        response = self.create_article()
         response = self.client.delete(
-            self.single_article_url("missing-article"), format='json',
-            HTTP_AUTHORIZATION='Bearer ' +
-            self.login_user())
+            self.single_article_url("missing-article"), format='json')
         self.http_400_bad_request(response)
         message = "No article found for the slug given"
         self.base_articles(message, response)

@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase, APIClient
 from django.core import mail
 from bs4 import BeautifulSoup
 import re
+from authors.apps.authentication.models import User
 
 
 class TestConfiguration(APITestCase):
@@ -168,6 +169,9 @@ class TestConfiguration(APITestCase):
 
     def get_user_token(self):
         self.register_user(data=self.user)
+        user = User.objects.get(email=self.user['email'])
+        user.is_verified = True
+        user.save()
         response = self.user_login_req(data=self.user_login)
         return response.data['token']
 
