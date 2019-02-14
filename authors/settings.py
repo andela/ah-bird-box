@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',
+    'authors.apps.articles',
 
     'social_django',
     'cloudinary',
@@ -206,8 +207,8 @@ EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_USE_TLS = True
 
 CLOUDINARY = {
- 'cloud_name': config('CLOUDINARY_NAME'),
- 'api_key': config('CLOUDINARY_KEY'),
- 'api_secret': config('CLOUDINARY_SECRET'),
- 'secure': True
+  'cloud_name': config('CLOUDINARY_NAME'),
+  'api_key': config('CLOUDINARY_KEY'),
+  'api_secret': config('CLOUDINARY_SECRET'),
+  'secure': True
 }
