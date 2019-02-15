@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.pagination import PageNumberPagination
 
 from .models import Article
 from .serializers import ArticleSerializers
@@ -16,7 +17,14 @@ def article_not_found():
         detail={'error': 'No article found for the slug given'})
 
 
+class StandardPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class ListCreateArticle(ListCreateAPIView):
+    pagination_class = StandardPagination
     queryset = Article.objects.all()
     renderer_classes = (ArticleJsonRenderer,)
     serializer_class = ArticleSerializers
@@ -32,6 +40,12 @@ class ListCreateArticle(ListCreateAPIView):
             article_instance.image_url = article_instance.image_url.url
             article_instance.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def get(self, request):
+        paginator = StandardPagination()
+        result_page = paginator.paginate_queryset(self.queryset, request)
+        serializer = ArticleSerializers(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 class RetrieveUpdateDeleteArticle(RetrieveUpdateDestroyAPIView):
