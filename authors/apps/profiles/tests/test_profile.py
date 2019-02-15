@@ -2,7 +2,7 @@ from rest_framework import status
 
 # local imports
 
-from authors.base_test_config import TestConfiguration
+from authors.apps.profiles.tests.base_test import TestConfiguration
 
 
 class CreateUserProfile(TestConfiguration):

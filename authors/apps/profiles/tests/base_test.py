@@ -43,9 +43,9 @@ class TestConfiguration(APITestCase):
         }
 
         self.client = APIClient()
-        self.login_url = reverse('authentication:login_url')
-        self.register_url = reverse('authentication:register_url')
-        self.profiles_url = reverse('profiles:uthors_profile')
+        self.login_url = reverse('authentication:login_user')
+        self.register_url = reverse('authentication:register_user')
+        self.profiles_url = reverse('profile:authors_profile')
 
     def register_user(self, data):
         return self.client.post(
@@ -69,5 +69,5 @@ class TestConfiguration(APITestCase):
     def authorize_user(self, user_login_details):
         # register a user
         self.register_user(data=self.user)
-        payload = self.login_a_user(data=user_login_details)
+        payload = self.login_user(data=user_login_details)
         self.client.credentials(HTTP_AUTHORIZATION='token ' + payload['token'])
