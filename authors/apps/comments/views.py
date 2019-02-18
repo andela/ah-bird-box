@@ -27,19 +27,10 @@ class CommentsAPIView(APIView):
                         "error": "Sorry, article was not found"
                     }
                 },
-                status=status.HTTP_204_NO_CONTENT
+                status=status.HTTP_200_OK
             )
 
         queryset = Comments.objects.filter(article=article.id)
-        if not queryset:
-            return Response(
-                {
-                    "comment": {
-                        "error": "Sorry, You do not have any comments yet"
-                    }
-                },
-                status=status.HTTP_204_NO_CONTENT
-            )
         serializer = self.serializer_class(data=queryset, many=True)
         serializer.is_valid()
         return Response({
@@ -94,21 +85,13 @@ class CommentDetailsAPIView(RetrieveUpdateDestroyAPIView, ListCreateAPIView):
                         "error": "Sorry, article was not found"
                     }
                 },
-                status=status.HTTP_204_NO_CONTENT
+                status=status.HTTP_200_OK
             )
         queryset = Comments.objects.filter(id=id, article=article.id)
-        if not queryset:
-            return Response(
-                {
-                    "comment": {
-                        "error": "Sorry, comment was not found"
-                    }
-                },
-                status=status.HTTP_204_NO_CONTENT
-            )
         serializer = self.serializer_class(queryset, many=True)
         return Response({
-            "comment": serializer.data[0]
+            "comment": serializer.data,
+            "commentsCount": queryset.count()
         },
             status=status.HTTP_200_OK
         )
