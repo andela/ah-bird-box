@@ -60,3 +60,12 @@ class CommentsSerializers(serializers.ModelSerializer):
 
     def get_article_id(self, obj):
         return obj.article.id
+
+
+class CommentsHistorySerializers(serializers.ModelSerializer):
+    """
+    This class creates a serializer for the history of comments edited
+    """
+    class Meta:
+        model = Comments
+        fields = ('id', 'body', 'created_at', 'updated_at')

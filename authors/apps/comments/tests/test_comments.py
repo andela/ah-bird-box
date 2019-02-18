@@ -73,7 +73,7 @@ class TestComments(BaseTest):
         self.authenticate_user(self.sample_user)
         self.create_article(self.sample_article)
         res = self.create_comment(self.sample_comment, self.sample_article)
-        comment_id = str(object=res.data['id'])
+        comment_id = str(res.data['id'])
         url = self.comment_url("my-data") + comment_id + '/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -86,7 +86,7 @@ class TestComments(BaseTest):
         self.create_article(self.sample_article)
         res = self.create_comment(
             self.sample_comment, self.sample_article)
-        comment_id = str(object=res.data['id'])
+        comment_id = str(res.data['id'])
         url = self.comment_url("my-data") + comment_id + '/'
         self.client.delete(url)
         response = self.client.get(url)
