@@ -90,9 +90,9 @@ class TestComments(BaseTest):
         url = self.comment_url("my-data") + comment_id + '/'
         self.client.delete(url)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(response.data['comment']
-                         ['error'], "Sorry, comment was not found")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('comment', response.data)
+        self.assertIn('commentsCount', response.data)
 
     def test_user_can_update_comment(self):
         """
