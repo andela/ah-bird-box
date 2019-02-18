@@ -16,6 +16,8 @@ Including another URLconf
 from django.urls import include, path
 from django.contrib import admin
 
+from .swagger import schema_view
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(
@@ -25,4 +27,5 @@ urlpatterns = [
         'authors.apps.articles.urls', namespace='articles')),
     path('api/', include(
         'authors.apps.comments.urls', namespace='comments')),
+    path('api/docs/', schema_view),
 ]

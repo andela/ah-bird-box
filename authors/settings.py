@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
     'social_django',
     'cloudinary',
+    'rest_framework_swagger'
 ]
 
 MIDDLEWARE = [
@@ -213,4 +214,17 @@ CLOUDINARY = {
   'api_key': config('CLOUDINARY_KEY'),
   'api_secret': config('CLOUDINARY_SECRET'),
   'secure': True
+}
+
+SWAGGER_SETTINGS = {
+  'SHOW_REQUEST_HEADERS': True,
+  'USE_SESSION_AUTH': False,
+  'DOC_EXPANSION': 'list',
+  'SECURITY_DEFINITIONS': {
+      'api_key': {
+          'type': 'apiKey',
+          'in': 'header',
+          'name': 'Authorization'
+      }
+  }
 }
