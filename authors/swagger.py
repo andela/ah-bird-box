@@ -173,10 +173,49 @@ def schema_view(request):
                     ],
                     description='Update user profile'
                 ),
-                'get all profiles': coreapi.Link(
+                'get_all_profiles': coreapi.Link(
                     url='/api/profiles/',
                     action='GET',
                     description='Get all profiles'
+                ),
+                'follow_user': coreapi.Link(
+                    url='/api/profiles/{username}/follow/',
+                    action='POST',
+                    fields=[
+                        coreapi.Field(
+                            name='username',
+                            required=True,
+                            location='path',
+                            description='Username of the user'
+                        )
+                    ],
+                    description='Follow a user'
+                ),
+                'unfollow_user': coreapi.Link(
+                    url='/api/profiles/{username}/follow/',
+                    action='DELETE',
+                    fields=[
+                        coreapi.Field(
+                            name='username',
+                            required=True,
+                            location='path',
+                            description='Username of the user'
+                        )
+                    ],
+                    description='Unfollow a user'
+                ),
+                'get_following': coreapi.Link(
+                    url='/api/profiles/{username}/following/',
+                    action='GET',
+                    fields=[
+                        coreapi.Field(
+                            name='username',
+                            required=True,
+                            location='path',
+                            description='Username of the user'
+                        )
+                    ],
+                    description='Get the list of followers and following'
                 ),
             },
             'Articles': {
@@ -420,6 +459,51 @@ def schema_view(request):
                             description='The slug of the article.'
                         )],
                     description='Display rating of an article',
+                ),
+                'get_comment_editing_history': coreapi.Link(
+                    url='/api/articles/{slug}/comments/{id}/history/',
+                    action='GET',
+                    fields=[
+                        coreapi.Field(
+                            name='slug',
+                            required=True,
+                            location='path',
+                            description='slug of the article'
+                        ),
+                        coreapi.Field(
+                            name='id',
+                            required=True,
+                            location='path',
+                            description='Id of the comment'
+                        ),
+                    ],
+                    description='Get the editing history of comments'
+                ),
+                'like_articles': coreapi.Link(
+                    url='api/articles/{slug}/like/',
+                    action='PUT',
+                    fields=[
+                        coreapi.Field(
+                            name='slug',
+                            required=True,
+                            location='path',
+                            description='slug of the article'
+                        ),
+                    ],
+                    description='Like an article'
+                ),
+                'unlike_articles': coreapi.Link(
+                    url='api/articles/{slug}/dislike/',
+                    action='PUT',
+                    fields=[
+                        coreapi.Field(
+                            name='slug',
+                            required=True,
+                            location='path',
+                            description='slug of the article'
+                        ),
+                    ],
+                    description='Dislike an article'
                 ),
             }
         }
