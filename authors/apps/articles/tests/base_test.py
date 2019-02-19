@@ -23,24 +23,30 @@ class TestBaseCase(APITestCase):
                 "body": "Updated body"
         }
 
-    def signup_user(self):
-        return self.client.post(self.signup_url,
-                                self.test_user,
-                                format='json')
+    def verify_user_registration(self, token):
+        verify_url = reverse('authentication:verify_email', args=[token])
+        self.client.get(verify_url)
 
-    def login_user(self):
-        self.signup_user()
-        response = self.client.post(self.login_url,
-                                    self.test_user,
-                                    format='json')
+    def authenticate_user(self, data):
+        """
+        Create an active user in the database
+        :return: user
+        """
 
-        return response.data['token']
+        response = self.client.post(
+            self.signup_url, data, format='json')
+        token = response.data['user_info']['token']
+        self.verify_user_registration(token)
+        response = self.client.post(
+            self.login_url, data, format='json'
+        )
+        token = response.data['token']
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
     def create_article(self):
         response = self.client.post(
-            self.create_list_article_url, self.article, format='json',
-            HTTP_AUTHORIZATION="Bearer " + self.login_user())
-        return response.data['slug']
+            self.create_list_article_url, self.article, format='json')
+        return response
 
     def single_article_url(self, slug):
         return reverse('articles:article-details', args=[slug])

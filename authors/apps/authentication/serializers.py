@@ -85,6 +85,10 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 'A user with this email and password was not found.'
             )
+        if not user.is_verified:
+            raise serializers.ValidationError(
+                'Please verify your email first'
+            )
 
         # Django provides a flag on our `User` model called `is_active`. The
         # purpose of this flag to tell us whether the user has been banned

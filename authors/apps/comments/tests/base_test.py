@@ -71,19 +71,20 @@ class BaseTest(APITestCase):
             format='json'
         )
 
-    def authenticate_user(self, user):
+    def authenticate_user(self, data):
         """
         Register and login an authorized user
         """
-        self.client.post(
-            self.register_url,
-            user,
-            format='json'
-        )
         response = self.client.post(
-            self.login_url,
-            user,
-            format='json'
+            self.register_url, data, format='json')
+        token = response.data['user_info']['token']
+        self.verify_user_registration(token)
+        response = self.client.post(
+            self.login_url, data, format='json'
         )
         token = response.data['token']
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+    def verify_user_registration(self, token):
+        verify_url = reverse('authentication:verify_email', args=[token])
+        self.client.get(verify_url)

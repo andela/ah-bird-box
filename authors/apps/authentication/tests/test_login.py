@@ -5,12 +5,13 @@ from authors.apps.authentication.tests.base_test import TestConfiguration
 
 class TestLogin(TestConfiguration):
 
-    def test_successful_login(self):
+    def test_unsuccessful_login(self):
         """test if login is successful """
         self.register_user(data=self.user)
         response = self.user_login_req(data=self.user_login)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['email'], "graceunah@gmail.com")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['errors']['error'][0],
+                         "Please verify your email first")
 
     def test_login_email_does_not_exist(self):
         """ test login with non existing email """

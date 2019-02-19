@@ -18,8 +18,11 @@ class JwtTestCase(TestConfiguration):
         """Test token generation at login."""
 
         self.register_user(data=self.user)
+        user = User.objects.get(email=self.user['email'])
+        user.is_verified = True
+        user.save()
         response = self.user_login_req(data=self.user_login)
-        self.assertEqual(response.data['email'], "graceunah@gmail.com")
+        self.assertEqual(response.data['email'], "graceunah@gmail.com")  # noqa
         self.assertIn('token', response.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

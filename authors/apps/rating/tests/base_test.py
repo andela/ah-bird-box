@@ -1,11 +1,10 @@
 from django.urls import reverse
 from rest_framework.test import APIClient, APITestCase
 
-from authors.apps.authentication.models import User
-
 
 class TestConfiguration(APITestCase):
     def setUp(self):
+        self.client = APIClient()
         self.user = {
             "username": "gracie",
             "email": "graceunah@gmail.com",
@@ -48,98 +47,55 @@ class TestConfiguration(APITestCase):
             "stars": 500
         }
 
-        self.reader = self.create_user(self.user)
-        self.author = self.create_user(self.user2)
-        self.slug = self.create_article().data['slug']
-        self.slug2 = "the-fault-in-our-stars-wrong-2"
-        self.client = APIClient()
-        self.one_article_url = reverse("articles:article-details",
-                                       kwargs={"slug": self.slug})
-        self.ratings_url = reverse('articles:rating:all_ratings', kwargs={
-            "slug": self.slug})
-        self.ratings_url2 = reverse('articles:rating:all_ratings', kwargs={
-            "slug": self.slug2})
+        self.register_url = reverse('authentication:register_user')
+        self.login_url = reverse('authentication:login_user')
+        self.create_article_url = reverse('articles:articles')
+        self.wrong_slug = "the-fault-in-our-stars-wrong-2"
 
-    def create_user(self, user):
+    def authenticate_user(self, data):
         """
         Create an active user in the database
         :return: user
         """
-        user = User.objects.create_user(
-            email=user['email'],
-            username=user['username'],
-            password=user['password'],
+
+        response = self.client.post(
+            self.register_url, data, format='json')
+        token = response.data['user_info']['token']
+        self.verify_user_registration(token)
+        response = self.client.post(
+            self.login_url, data, format='json'
         )
-        user.is_active = True
-        user.save()
-        return user
+        token = response.data['token']
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
-    def user_login_req(self, data):
-        self.login_url = reverse('authentication:login_user')
-        return self.client.post(
-            self.login_url,
-            data=data,
-            format="json")
-
-    def login(self, data):
-        response = self.user_login_req(data=data)
-        return response.data['token']
+    def verify_user_registration(self, token):
+        verify_url = reverse('authentication:verify_email', args=[token])
+        self.client.get(verify_url)
 
     def create_article(self):
         """
         Create an article
         """
-        create_article_url = reverse('articles:articles')
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Bearer ' + self.login(data=self.user_login2))
-        response = self.client.post(create_article_url,
+        self.authenticate_user(self.user)
+        response = self.client.post(self.create_article_url,
                                     data=self.article,
                                     format='json')
-        return response
+        return response.data
 
-    def get_ratings(self, user=None, is_authenticated=False,
-                    is_found=True, url=None):
+    def get_ratings(self, slug):
         """
         Retrieve articles by users
         """
+        url = reverse(
+            'articles:rating:all_ratings', kwargs={"slug": slug})
+        response = self.client.get(url)
+        return response
 
-        if user:
-            login = self.user_login2
-        else:
-            login = self.user_login
-
-        if is_authenticated:
-            self.client.credentials(
-                HTTP_AUTHORIZATION='Bearer ' +
-                self.login(data=login)
-            )
-            response = self.client.get(url)
-            return response
-        else:
-            response = self.client.get(url)
-            return response
-
-    def rate(self, user=None, is_authenticated=True, is_found=True,
-             stars=None, url=None):
+    def rate(self, slug, stars=None):
         """
         Rate a an article by a user.
         """
-        if user:
-            login = self.user_login2
-        else:
-            login = self.user_login
-
-        if is_authenticated:
-            self.client.credentials(
-                HTTP_AUTHORIZATION='Bearer ' +
-                self.login(data=login)
-            )
-            response = self.client.post(url,
-                                        data=stars,
-                                        format='json')
-            return response
-        else:
-            response = self.client.post(url,
-                                        data=stars,
-                                        format='json')
-            return response
+        url = reverse(
+            'articles:rating:all_ratings', kwargs={"slug": slug})
+        response = self.client.post(url, data=stars, format='json')
+        return response
