@@ -187,3 +187,31 @@ class TestConfiguration(APITestCase):
         link = soup.a['href']
         token = re.search(r'(?<=update_password/)(.*)', link).group(1)
         return token
+
+    def follow_user(self, username, token):
+        """This method sends a follow request to a user"""
+        follow_url = reverse("profile:follow", kwargs={'username': username})
+        response = self.client.post(
+            follow_url,
+            HTTP_AUTHORIZATION=f'Bearer {token}'
+        )
+        return response
+
+    def unfollow_user(self, username, token):
+        """This method sends a follow request to a user"""
+        follow_url = reverse("profile:follow", kwargs={'username': username})
+        response = self.client.delete(
+            follow_url,
+            HTTP_AUTHORIZATION=f'Bearer {token}'
+        )
+        return response
+
+    def get_following(self, username, token):
+        """This method sends a follow request to a user"""
+        following_url = reverse("profile:following",
+                                kwargs={'username': username})
+        response = self.client.get(
+            following_url,
+            HTTP_AUTHORIZATION=f'Bearer {token}'
+        )
+        return response
