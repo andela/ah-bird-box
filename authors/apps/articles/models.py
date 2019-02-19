@@ -19,6 +19,10 @@ class Article(models.Model):
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
     author = models.ForeignKey(
         User, related_name='article', on_delete=models.CASCADE)
+    liked_by = models.ManyToManyField(
+        User, related_name='likes', blank=True)
+    disliked_by = models.ManyToManyField(
+        User, related_name='dislikes', blank=True)
 
     def __str__(self):
         return self.title

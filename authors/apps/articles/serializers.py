@@ -42,6 +42,12 @@ class ArticleSerializers(serializers.ModelSerializer):
 
     averageRating = serializers.SerializerMethodField()
     ratingsCount = serializers.SerializerMethodField()
+    liked_by = serializers.PrimaryKeyRelatedField(
+        many=True, read_only=True)
+    disliked_by = serializers.PrimaryKeyRelatedField(
+        many=True, read_only=True)
+    likes_count = serializers.SerializerMethodField()
+    dislikes_count = serializers.SerializerMethodField()
 
     @staticmethod
     def get_averageRating(article):
@@ -92,5 +98,17 @@ class ArticleSerializers(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'averageRating',
-            'ratingsCount'
+            'ratingsCount',
+            'liked_by',
+            'disliked_by',
+            'likes_count',
+            'dislikes_count'
         )
+
+    def get_likes_count(self, obj):
+        """"Total Likes"""
+        return obj.liked_by.count()
+
+    def get_dislikes_count(self, obj):
+        """Total Dislikes"""
+        return obj.disliked_by.count()
