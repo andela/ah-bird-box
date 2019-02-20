@@ -1,9 +1,9 @@
 from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView)
+    ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView)
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.pagination import PageNumberPagination
 
 from .models import Article
@@ -96,3 +96,59 @@ class RetrieveUpdateDeleteArticle(RetrieveUpdateDestroyAPIView):
             article_not_found()
         super().delete(self, request, slug)
         return Response({"message": "Article Deleted Successfully"})
+
+
+class LikeArticleApiView(UpdateAPIView):
+    """Like an article."""
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+    serializer_class = ArticleSerializers
+
+    def put(self, request, slug):
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound("An article with this slug does not exist")
+
+        if article in Article.objects.filter(
+                disliked_by=request.user):
+            article.disliked_by.remove(request.user)
+
+        if article in Article.objects.filter(
+                liked_by=request.user):
+            article.liked_by.remove(request.user)
+
+        else:
+            article.liked_by.add(request.user)
+
+        serializer = self.serializer_class(article,
+                                           context={'request': request},
+                                           partial=True)
+        return Response(serializer.data, status.HTTP_200_OK)
+
+
+class DislikeArticleApiView(UpdateAPIView):
+    """Dislike an Article."""
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = ArticleSerializers
+
+    def put(self, request, slug):
+        try:
+            article = Article.objects.get(slug=slug)
+        except Article.DoesNotExist:
+            raise NotFound("An article with this slug does not exist")
+
+        if article in Article.objects.filter(
+                liked_by=request.user):
+            article.liked_by.remove(request.user)
+
+        if article in Article.objects.filter(
+                disliked_by=request.user):
+            article.disliked_by.remove(request.user)
+
+        else:
+            article.disliked_by.add(request.user)
+
+        serializer = self.serializer_class(article,
+                                           context={'request': request},
+                                           partial=True)
+        return Response(serializer.data, status.HTTP_200_OK)

@@ -7,6 +7,7 @@ class TestBaseCase(APITestCase):
         self.signup_url = reverse('authentication:register_user')
         self.login_url = reverse('authentication:login_user')
         self.create_list_article_url = reverse('articles:articles')
+        self.wrong_slug = "the-fault-in-our-stars-wrong-2"
         self.test_user = {
                 'username': 'Test',
                 'email': 'test@user.com',
@@ -50,3 +51,13 @@ class TestBaseCase(APITestCase):
 
     def single_article_url(self, slug):
         return reverse('articles:article-details', args=[slug])
+
+    def like_article(self, slug):
+        return self.client.put(
+            reverse('articles:likes', kwargs={"slug": slug}),
+            format='json')
+
+    def dislike_article(self, slug):
+        return self.client.put(
+            reverse('articles:dislikes', kwargs={"slug": slug}),
+            format='json')
