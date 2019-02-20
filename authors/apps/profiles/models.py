@@ -13,10 +13,10 @@ class Profile(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
-    image_url = CloudinaryField(
+    image = CloudinaryField(
         "image",
         default="https://res.cloudinary.com/dy2faavdk/image/upload/v1548264034/qvxtpdmi03kksg9rxgfj.png")  # noqa
-
+    image_url = models.CharField(max_length=500, null=True)
     company = models.CharField(max_length=100, blank=True)
     website = models.URLField(max_length=100, blank=True)
     location = models.CharField(max_length=250, blank=True)

@@ -11,8 +11,9 @@ from authors.apps.profiles.views import (
 app_name = 'profile'
 
 urlpatterns = [
-    path('profiles/<str:username>', ListProfileView.as_view(), name='profile'),
-    path('profiles/edit/<str:username>',
+    path('profiles/<str:username>/',
+         ListProfileView.as_view(), name='profile'),
+    path('profiles/edit/<str:username>/',
          EditUserProfileView.as_view(), name='update_profile'),
     path('profiles/',
          AuthorsProfileListAPIView.as_view(), name='authors_profile'),
