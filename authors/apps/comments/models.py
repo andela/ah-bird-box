@@ -2,6 +2,7 @@ from django.db import models
 from authors.apps.authentication.models import User
 from authors.apps.core.models import TimestampMixin
 from authors.apps.articles.models import Article
+from simple_history.models import HistoricalRecords
 
 
 class Comments(TimestampMixin, models.Model):
@@ -22,6 +23,7 @@ class Comments(TimestampMixin, models.Model):
         related_name='threads',
         on_delete=models.CASCADE
     )
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.body

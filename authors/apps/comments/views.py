@@ -1,12 +1,13 @@
-from authors.apps.articles.models import Article
-from .serializers import CommentsSerializers
-from .models import Comments
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.generics import (RetrieveUpdateDestroyAPIView,
                                      ListCreateAPIView)
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from authors.apps.articles.models import Article
+from .models import Comments
+from .serializers import CommentsSerializers, CommentsHistorySerializers
 
 
 class CommentsAPIView(APIView):
@@ -217,3 +218,46 @@ class CommentDetailsAPIView(RetrieveUpdateDestroyAPIView, ListCreateAPIView):
             },
             status=status.HTTP_200_OK
         )
+
+
+class CommentsHistoryAPIView(ListCreateAPIView):
+    """
+    Creates a view to retrieve the edit history of comments
+    """
+    serializer_class = CommentsHistorySerializers
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, id, **kwargs):
+
+        slug = self.kwargs['slug']
+        article = Article.objects.filter(slug=slug).first()
+        if not article:
+            return Response(
+                {
+                    "error": "Sorry, article was not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        comments = Comments.objects.filter(id=id, article=article.id).first()
+        if not comments:
+            return Response(
+                {
+                    "error": "Sorry, comment was not found"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        id = self.kwargs['id']
+        edited_comment = Comments.history.filter(id=id)
+        if edited_comment.count() == 1:
+            return Response(
+                {
+                    'error': 'No edit history for this comment found'
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = self.serializer_class(edited_comment, many=True)
+        data = {
+            'Comment Edit History': serializer.data
+        }
+        return Response(data, status=status.HTTP_200_OK)

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'authors.apps.articles',
     'authors.apps.comments',
     'authors.apps.rating',
+    'simple_history',
 
     'social_django',
     'cloudinary',
@@ -64,6 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'social_django.middleware.SocialAuthExceptionMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'authors.urls'
