@@ -70,7 +70,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     # but we can still analyze the data.
     is_active = models.BooleanField(default=True)
 
-    # When a suer is created this fiels is false until the user verifies their
+    # fields to specify whether a user has subscribed to notifications
+
+    email_notification_subscription = models.BooleanField(default=True)
+    app_notification_subscription = models.BooleanField(default=True)
+
+    # When a suer is created this field is false until the user verifies their
     # email
     is_verified = models.BooleanField(default=False)
 

@@ -41,12 +41,15 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_extensions',
     'rest_framework',
+    'notifications',
+
 
     'authors.apps.authentication',
     'authors.apps.core',
     'authors.apps.profiles',
     'authors.apps.articles',
     'authors.apps.comments',
+    'authors.apps.usernotifications',
     'authors.apps.rating',
     'simple_history',
 
@@ -233,3 +236,9 @@ SWAGGER_SETTINGS = {
 }
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+DOMAIN = config("APP_BASE_URL")
+
+DJANGO_NOTIFICATIONS_CONFIG = {
+    'USE_JSONFIELD': True,
+    'SOFT_DELETE': True
+}
