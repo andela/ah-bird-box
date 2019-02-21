@@ -30,6 +30,14 @@ class TestConfiguration(APITestCase):
             "password": "Test1@$!"
         }
 
+        self.update_profile = {
+            "bio": "Writer",
+            "company": "Andela",
+            "website": "https://www.andela.com",
+            "location": "Nairobi",
+            "phone": "+2547123456"
+        }
+
         self.social_auth_url = reverse('authentication:social_auth')
         self.invalid_token = 'this.is.an.invalid.token.for.social.login.test.purpose' # noqa
         self.oauth2_token = os.getenv("OAUTH2_ACCESS_TOKEN")
@@ -61,6 +69,9 @@ class TestConfiguration(APITestCase):
         self.login_url = reverse('authentication:login_user')
         self.register_url = reverse('authentication:register_user')
         self.specific_user_url = reverse('authentication:specific_user')
+        self.user_profile_url = reverse('profile:profile',
+                                        kwargs={'username': 'gracie'})
+        self.all_profiles_url = reverse('profile:authors_profile')
         self.invalid_token = 'thsnmbnscjkxcmm.btydghvhjb'
         self.invalid_token2 = 't'
         self.password_reset_url = reverse('authentication:reset_password')
@@ -215,3 +226,7 @@ class TestConfiguration(APITestCase):
             HTTP_AUTHORIZATION=f'Bearer {token}'
         )
         return response
+
+    def edit_profile_url(self, username):
+        return reverse('profile:update_profile',
+                       kwargs={'username': username})

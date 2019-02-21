@@ -9,12 +9,13 @@ class GetProfileSerializer(serializers.ModelSerializer):
     """
 
     username = serializers.CharField(source='user.username')
-    following = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
 
-        fields = ('id', 'username', 'bio', 'image_url', 'company', 'website', 'location', 'phone', 'following')  # noqa
+        fields = (
+            'username', 'bio', 'image_url',
+            'company', 'website', 'location', 'phone')
 
         read_only_fields = ("created_at", "updated_at")
 
@@ -27,7 +28,11 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
 
-        fields = ('bio', 'image_url', 'company', 'website', 'location', 'phone')  # noqa
+        fields = ('bio', 'image_url',
+                  'company', 'website',
+                  'location', 'phone', 'image')
+
+        extra_kwargs = {"image": {"write_only": True}}
         read_only_fields = ("created_at", "updated_at")
 
     def update(self, instance, validated_data):
@@ -35,14 +40,14 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         Update profile function.
         """
         instance.bio = validated_data.get('bio', instance.bio)
-        instance.image = validated_data.get('image_url', instance.image_url)
+        instance.image = validated_data.get('image', instance.image)
         instance.company = validated_data.get('company', instance.company)
         instance.website = validated_data.get('website', instance.website)
         instance.location = validated_data.get('location', instance.location)
         instance.phone = validated_data.get('phone', instance.phone)
 
         instance.save()
-        instance.image_url = instance.image_url.url
+        instance.image_url = instance.image.url
         instance.save()
 
         return instance
