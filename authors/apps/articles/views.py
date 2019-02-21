@@ -1,15 +1,16 @@
-from rest_framework.generics import (
-    ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView)
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.exceptions import ValidationError, NotFound
 from rest_framework.pagination import PageNumberPagination
-
-from .models import Article
-from .serializers import ArticleSerializers
-from .renderers import ArticleJsonRenderer
+from rest_framework.exceptions import ValidationError, NotFound
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.generics import (
+    ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView,
+    ListAPIView)
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from .permissions import IsOwnerOrReadonly
+from .renderers import ArticleJsonRenderer
+from .serializers import ArticleSerializers, TagsSerializer
+from .models import Article, Tag
 
 
 def article_not_found():
@@ -152,3 +153,14 @@ class DislikeArticleApiView(UpdateAPIView):
                                            context={'request': request},
                                            partial=True)
         return Response(serializer.data, status.HTTP_200_OK)
+
+
+class TagsAPIView(ListAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagsSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request):
+        data = self.get_queryset()
+        serializer = self.serializer_class(data, many=True)
+        return Response({'tags': serializer.data}, status=status.HTTP_200_OK)

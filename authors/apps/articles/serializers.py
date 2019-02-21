@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from .models import Article
+from .models import Article, Tag
+from authors.apps.articles.relations import TagsRelation
 
 
 class ArticleSerializers(serializers.ModelSerializer):
@@ -48,6 +49,7 @@ class ArticleSerializers(serializers.ModelSerializer):
         many=True, read_only=True)
     likes_count = serializers.SerializerMethodField()
     dislikes_count = serializers.SerializerMethodField()
+    tags = TagsRelation(many=True, required=False)
 
     @staticmethod
     def get_averageRating(article):
@@ -84,7 +86,7 @@ class ArticleSerializers(serializers.ModelSerializer):
         return article.ratings.all().count()
 
     def get_author(self, obj):
-        return obj.author.id
+        return obj.author.username
 
     class Meta:
         model = Article
@@ -95,6 +97,7 @@ class ArticleSerializers(serializers.ModelSerializer):
             'slug',
             'image_url',
             'author',
+            'tags',
             'created_at',
             'updated_at',
             'averageRating',
@@ -112,3 +115,12 @@ class ArticleSerializers(serializers.ModelSerializer):
     def get_dislikes_count(self, obj):
         """Total Dislikes"""
         return obj.disliked_by.count()
+
+
+class TagsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ('tag')
+
+    def to_representation(self, instance):
+        return instance.tag

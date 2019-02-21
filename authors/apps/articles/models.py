@@ -23,6 +23,7 @@ class Article(models.Model):
         User, related_name='likes', blank=True)
     disliked_by = models.ManyToManyField(
         User, related_name='dislikes', blank=True)
+    tags = models.ManyToManyField('articles.Tag', related_name='articles')
 
     def __str__(self):
         return self.title
@@ -51,3 +52,13 @@ class Article(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class Tag(models.Model):
+    """
+    The model for creating tags for Articles
+    """
+    tag = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.tag
