@@ -13,5 +13,6 @@ urlpatterns = [
     path('articles/<slug>/like/',
          views.LikeArticleApiView.as_view(), name='likes'),
     path('articles/<slug>/dislike/',
-         views.DislikeArticleApiView.as_view(), name='dislikes')
+         views.DislikeArticleApiView.as_view(), name='dislikes'),
+    path('tags/', views.TagsAPIView.as_view(), name="articles-tags")
 ]

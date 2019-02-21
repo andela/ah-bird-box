@@ -8,6 +8,7 @@ class TestBaseCase(APITestCase):
         self.login_url = reverse('authentication:login_user')
         self.create_list_article_url = reverse('articles:articles')
         self.wrong_slug = "the-fault-in-our-stars-wrong-2"
+        self.get_tags_url = reverse('articles:articles-tags')
         self.test_user = {
                 'username': 'Test',
                 'email': 'test@user.com',
@@ -17,6 +18,7 @@ class TestBaseCase(APITestCase):
                 "title": "Test Article",
                 "description": "Test description for the article",
                 "body": "Test body for the article",
+                "tags": ["test", "tags"],
                 "author": 1
         }
         self.updated_article = {
