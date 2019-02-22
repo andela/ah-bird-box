@@ -95,6 +95,7 @@ class ArticleSerializers(serializers.ModelSerializer):
             'description',
             'body',
             'slug',
+            'image',
             'image_url',
             'author',
             'tags',
@@ -107,6 +108,7 @@ class ArticleSerializers(serializers.ModelSerializer):
             'likes_count',
             'dislikes_count'
         )
+        extra_kwargs = {"image": {"write_only": True}}
 
     def get_likes_count(self, obj):
         """"Total Likes"""

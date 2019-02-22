@@ -116,7 +116,7 @@ def schema_view(request):
             },
             'Profile': {
                 'get_user_profile': coreapi.Link(
-                    url='/api/users/{username}/',
+                    url='/api/profiles/{username}/',
                     action='GET',
                     fields=[
                         coreapi.Field(
@@ -131,7 +131,7 @@ def schema_view(request):
 
                 ),
                 'update_user_profile': coreapi.Link(
-                    url='/api/users/{username}/',
+                    url='/api/profiles/{username}/',
                     action='PUT',
                     fields=[
                         coreapi.Field(

@@ -25,11 +25,11 @@ class StandardPagination(PageNumberPagination):
 
 
 class ListCreateArticle(ListCreateAPIView):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = StandardPagination
     queryset = Article.objects.all()
     renderer_classes = (ArticleJsonRenderer,)
     serializer_class = ArticleSerializers
-    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def post(self, request):
         article = request.data
@@ -37,8 +37,8 @@ class ListCreateArticle(ListCreateAPIView):
             data=article, context={'request': request})
         serializer.is_valid(raise_exception=True)
         article_instance = serializer.save(author=request.user)
-        if article_instance.image_url is not None:
-            article_instance.image_url = article_instance.image_url.url
+        if article_instance.image is not None:
+            article_instance.image_url = article_instance.image.url
             article_instance.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -53,10 +53,10 @@ class RetrieveUpdateDeleteArticle(RetrieveUpdateDestroyAPIView):
     """
     This class retrieves, updates, and deletes a single article
     """
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadonly)
     queryset = Article.objects.all()
     serializer_class = ArticleSerializers
     renderer_classes = (ArticleJsonRenderer,)
-    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadonly)
     lookup_field = 'slug'
 
     def get_single_article(self, slug):
@@ -87,8 +87,8 @@ class RetrieveUpdateDeleteArticle(RetrieveUpdateDestroyAPIView):
         if serializer.is_valid():
             self.check_object_permissions(request, article)
             article_instance = serializer.save()
-            if article_instance.image_url is not None:
-                article_instance.image_url = article_instance.image_url.url
+            if article_instance.image is not None:
+                article_instance.image_url = article_instance.image.url
                 article_instance.save()
             return Response(serializer.data)
 

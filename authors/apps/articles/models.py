@@ -14,7 +14,8 @@ class Article(models.Model):
     title = models.CharField(max_length=1000, blank=False)
     description = models.CharField(max_length=2000, blank=False)
     body = models.TextField(blank=False)
-    image_url = CloudinaryField(blank=True, null=True)
+    image = CloudinaryField(blank=True, null=True)
+    image_url = models.CharField(max_length=500, null=True)
     created_at = models.DateTimeField(auto_now_add=True, auto_now=False)
     updated_at = models.DateTimeField(auto_now=True, auto_now_add=False)
     author = models.ForeignKey(
