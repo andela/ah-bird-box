@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Authors Haven Notifications</title>
+    <meta name="description" content="email notifications">
+    <meta name="keywords" content="keywords">
+</head>
+
+
+<body>
+    <div id="div-page" style="border: 2px solid #86C232;border-radius: 25px;width: 30em;padding: 25px;margin: 5em;text-align: justify; border-width: thick">
+
+        <h1 style="line-height: 35px;text-align: center; color: #86C232;">
+            Authors Haven Notifications
+        </h1>
+        <h1 style="line-height: 35px;text-align: center;">
+            Hello <span id="username" style="color: #23bebe;">{{username}}</span>
+        </h1>
+
+        <div id="div-content" style="line-height: 26px;">
+            <p style="text-align: center;">This is an auto generated notification.</p>
+            <p>{{description}}</p>
+            <p><a href={{resource_url}}><button>See Here</button></a></p>
+            <p>To opt out of these notifications, click below</p>
+            <p></p><a href={{opt_out_link}}>Unsubscribe</a></p>
+            <p style="text-align: center;">Thank you for being an active user.</p>
+
+        </div>
+    </div>
+
+
+</body>
+
+</html>

@@ -1,5 +1,9 @@
-from django.shortcuts import get_object_or_404
+from datetime import datetime
 
+from notifications.signals import notify
+
+from django.shortcuts import get_object_or_404
+from django.conf import settings
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.generics import (
     UpdateAPIView, RetrieveAPIView, ListAPIView, RetrieveUpdateDestroyAPIView)
@@ -125,6 +129,15 @@ class FollowUnfollowAPIView(RetrieveUpdateDestroyAPIView):
             "message": f"You are now following {username}",
             "user": serializer.data
         }
+        notify.send(
+            request.user,
+            recipient=to_be_followed,
+            description="{} followed you on {}".format(
+                request.user.username, datetime.now().strftime('%d-%B-%Y %H:%M')),  # noqa
+            verb='USER_FOLLOWING',
+            target=to_be_followed,
+            resource_url=f'{settings.DOMAIN}/api/profiles/{to_be_followed.username}'  # noqa
+        )
         return Response(message, status=status.HTTP_200_OK)
 
     def delete(self, request, username, format=None):
@@ -178,7 +191,7 @@ class FollowerFollowingAPIView(ListAPIView):
 
     def get(self, request, username, format=None):
         """Returns the user's followed user"""
-        if self.get_queryset() is not None:
+        if self.get_queryset():
 
             following_dict = self.get_queryset()
 

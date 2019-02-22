@@ -27,5 +27,6 @@ urlpatterns = [
         'authors.apps.articles.urls', namespace='articles')),
     path('api/', include(
         'authors.apps.comments.urls', namespace='comments')),
+    path('api/', include('authors.apps.usernotifications.urls', namespace="notifications")),  # noqa
     path('api/docs/', schema_view),
 ]
