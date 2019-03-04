@@ -111,9 +111,9 @@ class TestComments(BaseTest):
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
-            response.data['comment']['message'],
-            "Comment was successfully updated"
+            response.data['message'], "Comment was successfully updated"
         )
+        self.assertIn('comment', response.data)
 
     def test_unauthorized_update_comment(self):
         """

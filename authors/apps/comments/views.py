@@ -208,16 +208,16 @@ class CommentDetailsAPIView(RetrieveUpdateDestroyAPIView, ListCreateAPIView):
             )
 
         comment_data = request.data
-        comment.body = comment_data['body']
-        comment.save(update_fields=['body'])
-        return Response(
-            {
-                "comment": {
-                    "message": "Comment was successfully updated"
-                }
+        serializer = self.serializer_class(
+            comment, data=comment_data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                "message": "Comment was successfully updated",
+                "comment": serializer.data
             },
-            status=status.HTTP_200_OK
-        )
+                status=status.HTTP_200_OK
+            )
 
 
 class CommentsHistoryAPIView(ListCreateAPIView):
