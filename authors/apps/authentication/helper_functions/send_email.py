@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 import os
+from decouple import config
 
 
 def create_email_message(link, subject, html_template, username=None):
@@ -37,11 +38,10 @@ def send_reset_password_email(recipient, token, request):
 
 
 def send_verify_email(request, recipient_details, token):
-    subject = "Password Reset Request"
-    host_url = get_current_site(request)
+    subject = "Verify Email for Authors Haven"
     username = recipient_details['username']
-    link = "http://" + host_url.domain + \
-        '/api/users/verify/{}'.format(token)
+    verification_url = config("VERIFICATION_URL")
+    link = "{}/verify/{}".format(verification_url, token)
     message = create_email_message(link, subject, 'email_verification.html', username) # noqa
     recipient_email = recipient_details['email']
     send_email(recipient_email, token, request, message, subject)
