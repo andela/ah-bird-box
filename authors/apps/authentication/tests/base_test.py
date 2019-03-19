@@ -53,7 +53,7 @@ class TestConfiguration(APITestCase):
         }
 
         self.oauth2_data = {
-            "provider": "facebook",
+            "provider": "google-oauth2",
             "access_token": self.oauth2_token
         }
 
