@@ -1,4 +1,3 @@
-from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
@@ -26,9 +25,8 @@ def send_email(recipient, token, request, message, subject):
 
 def send_reset_password_email(recipient, token, request):
     subject = "Password Reset Request"
-    host_url = get_current_site(request)
-    link = "http://" + host_url.domain + \
-        '/api/users/update_password/{}'.format(token)
+    password_reset_url = config("VERIFICATION_URL")
+    link = "{}/update_password/{}".format(password_reset_url, token)
     message = create_email_message(link, subject, 'email_template.html')
     send_email(recipient, token, request, message, subject)
     result = {
