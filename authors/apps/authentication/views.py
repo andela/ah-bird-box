@@ -168,10 +168,12 @@ class SocialAuthView(CreateAPIView):
             email = user.email
             username = user.username
             token = user.token
+            id = user.id
             user_data = {
                 "username": username,
                 "email": email,
-                "token": token
+                "token": token,
+                "id": id
             }
             return Response(user_data, status=status.HTTP_200_OK)
 
