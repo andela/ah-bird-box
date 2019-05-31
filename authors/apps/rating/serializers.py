@@ -8,6 +8,7 @@ class RatingsSerializer(serializers.ModelSerializer):
     """Handles serialization and deserialization of User objects to return
     their profile alone"""
     user = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = Rating
@@ -18,6 +19,7 @@ class RatingsSerializer(serializers.ModelSerializer):
         # show the user's username only alongside the rating
         return instance.user.username
 
+    
     def create(self, validated_data):
         """
         When the URL is accessed with the POST method this function is hit.

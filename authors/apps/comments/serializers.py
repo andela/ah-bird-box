@@ -28,7 +28,7 @@ class CommentsSerializers(serializers.ModelSerializer):
 
                 'id': thread.id,
                 'body': thread.body,
-                'author': thread.author.id,
+                'author': thread.author.username,
                 'created_at': self.format_date(thread.created_at),
                 'replies': thread.threads.count(),
                 'updated_at': self.format_date(thread.updated_at)
@@ -39,7 +39,7 @@ class CommentsSerializers(serializers.ModelSerializer):
                                self).to_representation(instance)
         representation['created_at'] = self.format_date(instance.created_at)
         representation['updated_at'] = self.format_date(instance.updated_at)
-        representation['author'] = instance.author.id
+        representation['author'] = instance.author.username
         representation['article'] = instance.article.title
         representation['reply_count'] = instance.threads.count()
         representation['threads'] = threads
@@ -56,7 +56,7 @@ class CommentsSerializers(serializers.ModelSerializer):
                             'created_at', 'updated_at', 'article_id')
 
     def get_author(self, obj):
-        return obj.author.id
+        return obj.author.username
 
     def get_article_id(self, obj):
         return obj.article.id
