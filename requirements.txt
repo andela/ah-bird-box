@@ -55,7 +55,7 @@ py==1.7.0
 pycodestyle==2.5.0
 pycparser==2.19
 pyflakes==2.1.0
-PyJWT==1.7.1
+PyJWT==2.4.0
 pylint==2.2.2
 pynliner3==0.6
 pytest==4.1.1
